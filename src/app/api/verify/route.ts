@@ -66,6 +66,34 @@ export async function POST(req: NextRequest) {
       return res;
     }
 
+    // Treat duplicate/nullifier-already-used as "already verified" and persist session cookies
+    const code = (verifyRes as unknown as { code?: string })?.code?.toLowerCase?.();
+    const isAlreadyVerified = !!code && (code.includes('already') || code.includes('duplicate'));
+
+    if (isAlreadyVerified) {
+      const res = NextResponse.json({ verifyRes, status: 200, alreadyVerified: true }, { status: 200 });
+      const isProd = process.env.NODE_ENV === 'production';
+
+      res.cookies.set('fw_verified', 'true', {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isProd,
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365,
+      });
+
+      const levelRaw = String((payload as ISuccessResult | undefined)?.verification_level ?? 'device');
+      res.cookies.set('fw_verified_level', levelRaw, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isProd,
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365,
+      });
+
+      return res;
+    }
+
     return NextResponse.json({ verifyRes, status: 400 }, { status: 400 });
   } catch (err) {
     console.error('[verify] Verification failed', err);
