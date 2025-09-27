@@ -41,13 +41,35 @@ export async function POST(req: NextRequest) {
     )) as IVerifyResponse;
 
     if (verifyRes.success) {
-      return NextResponse.json({ verifyRes }, { status: 200 });
+      const res = NextResponse.json({ verifyRes, status: 200 }, { status: 200 });
+      const isProd = process.env.NODE_ENV === 'production';
+
+      // Persist verification status for server components to read
+      res.cookies.set('fw_verified', 'true', {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isProd,
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+      });
+
+      // Store raw verification level; consumers can map to labels
+      const levelRaw = String(payload.verification_level ?? '');
+      res.cookies.set('fw_verified_level', levelRaw, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isProd,
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+      });
+
+      return res;
     }
 
-    return NextResponse.json({ verifyRes }, { status: 400 });
+    return NextResponse.json({ verifyRes, status: 400 }, { status: 400 });
   } catch (err) {
     console.error('[verify] Verification failed', err);
-    return NextResponse.json({ error: 'Verification failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Verification failed', status: 500 }, { status: 500 });
   }
 }
 

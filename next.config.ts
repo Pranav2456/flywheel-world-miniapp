@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['static.usernames.app-backend.toolsforhumanity.com'],
   },
-  allowedDevOrigins: ['*', 'https://david-bless-submitting-saying.trycloudflare.com', 'https://standings-evaluated-cnet-sandra.trycloudflare.com', 'https://barbara-fog-velocity-races.trycloudflare.com'], // Add your dev origin here
+  allowedDevOrigins: ['*', 'https://lamps-strand-southern-mel.trycloudflare.com'],
   reactStrictMode: false,
 };
 

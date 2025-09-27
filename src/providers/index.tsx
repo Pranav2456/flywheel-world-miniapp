@@ -32,15 +32,9 @@ export default function ClientProviders({
   children,
   session,
 }: ClientProvidersProps) {
-  const appId = process.env.NEXT_PUBLIC_APP_ID;
-
-  if (!appId) {
-    console.warn('NEXT_PUBLIC_APP_ID is not set; MiniKit may not initialize.');
-  }
-
   return (
     <ErudaProvider>
-      <MiniKitProvider props={appId ? { appId } : undefined}>
+      <MiniKitProvider>
         <SessionProvider session={session}>{children}</SessionProvider>
       </MiniKitProvider>
     </ErudaProvider>

@@ -1,7 +1,9 @@
 'use client';
 import { Button, LiveFeedback } from '@worldcoin/mini-apps-ui-kit-react';
-import { MiniKit, VerificationLevel } from '@worldcoin/minikit-js';
+import { MiniKit, VerificationLevel, ResponseEvent } from '@worldcoin/minikit-js';
+import { useMiniKit } from '@worldcoin/minikit-js/minikit-provider';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { FLYWHEEL_VERIFY_ACTION } from '@/lib/minikit';
 
 /**
@@ -12,6 +14,8 @@ import { FLYWHEEL_VERIFY_ACTION } from '@/lib/minikit';
  */
 
 export const Verify = () => {
+  const router = useRouter();
+  const { isInstalled } = useMiniKit();
   const [buttonState, setButtonState] = useState<
     'pending' | 'success' | 'failed' | undefined
   >(undefined);
@@ -19,14 +23,28 @@ export const Verify = () => {
   const [whichVerification, setWhichVerification] = useState<VerificationLevel>(
     VerificationLevel.Device,
   );
-  const [isMiniKitReady, setIsMiniKitReady] = useState<boolean>(false);
+  // Prefer provider state over ad-hoc checks; reacts when MiniKit finishes handshake
 
   useEffect(() => {
-    setIsMiniKitReady(MiniKit.isInstalled());
-  }, []);
+    if (!isInstalled) return;
+
+    // Install a handler to silence SDK's "No handler for event miniapp-verify-action" console error
+    const handler = (response: any) => {
+      if (response?.status === 'error') {
+        setButtonState('failed');
+        console.warn('Verify event error', response);
+      }
+      // Success path is handled by the commandsAsync promise below
+    };
+    MiniKit.subscribe(ResponseEvent.MiniAppVerifyAction, handler);
+
+    return () => {
+      MiniKit.unsubscribe(ResponseEvent.MiniAppVerifyAction);
+    };
+  }, [isInstalled]);
 
   const onClickVerify = async (verificationLevel: VerificationLevel) => {
-    if (!MiniKit.isInstalled()) {
+    if (!isInstalled) {
       setButtonState('failed');
       console.warn('MiniKit is not installed. Open the mini app inside World App.');
       return;
@@ -40,7 +58,13 @@ export const Verify = () => {
     });
 
     if (result.finalPayload.status === 'error') {
-      console.error('MiniKit verify error', result.finalPayload);
+      const err: any = result.finalPayload;
+      const code = err?.error_code ?? 'unknown';
+      if (code === 'user_rejected') {
+        console.warn('MiniKit verify cancelled by user');
+      } else {
+        console.error('MiniKit verify error', code, err);
+      }
       setButtonState('failed');
       setTimeout(() => setButtonState(undefined), 2000);
       return;
@@ -59,11 +83,14 @@ export const Verify = () => {
     });
 
     const data = await response.json();
-    if (data.verifyRes.success) {
+    if (response.ok && data?.verifyRes?.success) {
       setButtonState('success');
       // Normally you'd do something here since the user is verified
       // Here we'll just do nothing
+      // Refresh to reflect server cookie-based verification status in SSR components
+      router.refresh();
     } else {
+      console.error('Verify API failed', data);
       setButtonState('failed');
 
       // Reset the button state after 3 seconds
@@ -76,7 +103,7 @@ export const Verify = () => {
   return (
     <section id="verify" className="grid w-full gap-4">
       <p className="text-lg font-semibold">Verify</p>
-      {!isMiniKitReady ? (
+      {!isInstalled ? (
         <p className="text-xs text-gray-500">
           Verification requires running inside World App or an environment with
           MiniKit installed. Open this mini app on your device to continue.
@@ -97,7 +124,7 @@ export const Verify = () => {
       >
         <Button
           onClick={() => onClickVerify(VerificationLevel.Device)}
-          disabled={buttonState === 'pending'}
+          disabled={!isInstalled || buttonState === 'pending'}
           size="lg"
           variant="tertiary"
           className="w-full"
@@ -118,7 +145,7 @@ export const Verify = () => {
       >
         <Button
           onClick={() => onClickVerify(VerificationLevel.Orb)}
-          disabled={buttonState === 'pending'}
+          disabled={!isInstalled || buttonState === 'pending'}
           size="lg"
           variant="primary"
           className="w-full"

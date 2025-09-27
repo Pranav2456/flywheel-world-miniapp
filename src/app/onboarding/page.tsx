@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Marble, Tabs, TabItem } from '@worldcoin/mini-apps-ui-kit-react';
 import { Page } from '@/components/PageLayout';
+import { Verify } from '@/components/Verify';
+import { useMiniKit } from '@worldcoin/minikit-js/minikit-provider';
 
 type Slide = {
   id: string;
@@ -34,6 +36,7 @@ const slides: Slide[] = [
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { isInstalled } = useMiniKit();
   const [currentSlide, setCurrentSlide] = useState<string>(slides[0].id);
   const activeSlide = useMemo(
     () => slides.find((slide) => slide.id === currentSlide) ?? slides[0],
@@ -85,15 +88,16 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 pb-6">
-          <Button size="lg" variant="primary" onClick={handleContinue}>
+        <div className="flex flex-col gap-4 pb-6">
+          <div className="rounded-2xl border border-gray-200 p-4">
+            <p className="mb-2 text-sm font-medium text-gray-800">Verify to continue</p>
+            <Verify />
+          </div>
+          <Button size="lg" variant="primary" onClick={handleContinue} disabled={!isInstalled}>
             {currentSlide === slides[slides.length - 1].id ? 'Enter Flywheel' : 'Next'}
           </Button>
-          <Button size="lg" variant="tertiary" onClick={() => router.push('/home')}>
-            Skip for now
-          </Button>
           <p className="text-xs text-gray-500 text-center">
-            You can revisit onboarding anytime from settings.
+            Verification is required before using Flywheel features.
           </p>
         </div>
       </Page.Main>

@@ -40,12 +40,14 @@ export const IdentityCard = ({
           ) : null}
         </div>
       </div>
-      <div className="grid gap-3">
-        <p className="text-sm font-medium text-gray-700">
-          Verify your identity to unlock requests and assignments
-        </p>
-        <Verify />
-      </div>
+      {verificationLevel === 'unverified' ? (
+        <div className="grid gap-3">
+          <p className="text-sm font-medium text-gray-700">
+            Verify your identity to unlock requests and assignments
+          </p>
+          <Verify />
+        </div>
+      ) : null}
     </section>
   );
 };
