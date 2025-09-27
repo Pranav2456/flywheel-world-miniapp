@@ -1,20 +1,12 @@
-import { auth } from '@/auth';
+import { ReactNode } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { Page } from '@/components/PageLayout';
 
-export default async function TabsLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const session = await auth();
+interface TabsLayoutProps {
+  children: ReactNode;
+}
 
-  // If the user is not authenticated, redirect to the login page
-  if (!session) {
-    console.log('Not authenticated');
-    // redirect('/');
-  }
-
+export default function TabsLayout({ children }: TabsLayoutProps) {
   return (
     <Page>
       {children}
