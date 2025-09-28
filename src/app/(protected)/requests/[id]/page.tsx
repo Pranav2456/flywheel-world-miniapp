@@ -28,18 +28,19 @@ export default async function RequestDetailPage({ params }: RequestDetailPagePro
 
   const formatUnits = (amount?: string | null, decimals?: number) => {
     if (!amount) return '—';
-    const s = amount.replace(/^0x/, '');
     const d = typeof decimals === 'number' ? decimals : 18;
-    const neg = s.startsWith('-');
-    const digits = neg ? s.slice(1) : s;
-    const pad = d - digits.length;
-    const whole = pad >= 0 ? '0' : digits.slice(0, digits.length - d);
-    let frac = pad >= 0 ? '0'.repeat(pad) + digits : digits.slice(digits.length - d);
-    // trim
-    frac = frac.replace(/0+$/, '');
-    const withDot = frac.length ? `${whole}.${frac}` : whole;
-    const withCommas = withDot.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return neg ? `-${withCommas}` : withCommas;
+    const neg = amount.startsWith('-');
+    const raw = neg ? amount.slice(1) : amount;
+    const len = raw.length;
+    const needsPad = len <= d;
+    const wholeRaw = needsPad ? '0' : raw.slice(0, len - d);
+    let fracRaw = needsPad ? raw.padStart(d, '0') : raw.slice(len - d);
+    // trim trailing zeros in fractional part
+    fracRaw = fracRaw.replace(/0+$/, '');
+    // format whole part with thousand separators only
+    const wholeFormatted = wholeRaw.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const out = fracRaw.length ? `${wholeFormatted}.${fracRaw}` : wholeFormatted;
+    return neg ? `-${out}` : out;
   };
 
   const formatTokenAmount = (amount?: string | null, symbol?: string) => {
