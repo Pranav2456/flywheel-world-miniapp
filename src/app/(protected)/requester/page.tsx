@@ -13,7 +13,6 @@ export default async function RequesterDashboardPage() {
     ok: boolean;
     items: { id: string; title?: string; status: number | null; requester: string | null }[];
   };
-  const me = cookieStore.get('next-auth.session-token') ? undefined : undefined; // SSR-safe placeholder; filter client-side if needed
   const mapStatus = (s: number | null): 'active' | 'settlement' | 'history' => {
     if (s === 0) return 'active';
     if (s === 1) return 'active';

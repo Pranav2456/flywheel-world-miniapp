@@ -6,7 +6,7 @@ import { settleRequest } from '@/lib/api/contracts';
 import { MiniKit } from '@worldcoin/minikit-js';
 import { Abi } from 'viem';
 
-export const SettlePanel = ({ requestId, manager, delegationToken }: { requestId: string; manager?: `0x${string}`; delegationToken?: `0x${string}` }) => {
+export const SettlePanel = ({ requestId, manager }: { requestId: string; manager?: `0x${string}` }) => {
   const [amount, setAmount] = useState('0');
   const [state, setState] = useState<'idle' | 'pending' | 'success' | 'failed'>('idle');
   const [result, setResult] = useState<{ gross: string; commission: string; requesterAmount: string; txHash: string } | null>(null);
@@ -58,7 +58,7 @@ export const SettlePanel = ({ requestId, manager, delegationToken }: { requestId
     <LiveFeedback
       className="w-full"
       label={{ failed: 'Failed', pending: 'Settling...', success: 'Settled (preview)' }}
-      state={state === 'idle' ? undefined : state === 'pending' ? 'pending' : state === 'success' ? 'success' : 'failed'}
+      state={state === 'idle' ? undefined : state === 'pending' ? 'pending' : 'success'}
     >
       <div className="grid gap-2">
         <input className="rounded-xl border border-gray-200 px-3 py-2 text-xs" placeholder="Return amount (base units)" value={amount} onChange={(e) => setAmount(e.target.value)} />

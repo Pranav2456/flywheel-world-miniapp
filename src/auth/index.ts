@@ -75,20 +75,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.userId = user.id;
-        token.walletAddress = user.walletAddress;
-        token.username = user.username;
-        token.profilePictureUrl = user.profilePictureUrl;
+        token.userId = (user as unknown as { id: string }).id;
+        token.walletAddress = (user as unknown as { walletAddress: string }).walletAddress;
+        token.username = (user as unknown as { username: string }).username;
+        token.profilePictureUrl = (user as unknown as { profilePictureUrl: string }).profilePictureUrl;
       }
 
       return token;
     },
     session: async ({ session, token }) => {
-      if (token.userId) {
-        session.user.id = token.userId as string;
-        session.user.walletAddress = (token as any).walletAddress as string;
-        session.user.username = token.username as string;
-        session.user.profilePictureUrl = token.profilePictureUrl as string;
+      if ((token as unknown as { userId?: string }).userId) {
+        session.user.id = (token as unknown as { userId: string }).userId;
+        session.user.walletAddress = (token as unknown as { walletAddress: string }).walletAddress;
+        session.user.username = (token as unknown as { username: string }).username;
+        session.user.profilePictureUrl = (token as unknown as { profilePictureUrl: string }).profilePictureUrl;
       }
 
       return session;

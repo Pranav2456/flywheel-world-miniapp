@@ -6,24 +6,6 @@ import { createRequest } from '@/lib/api/contracts';
 import type { SupportedTokenSymbol } from '@/types/contracts';
 import { useRouter } from 'next/navigation';
 import { MiniKit, tokenToDecimals, Tokens } from '@worldcoin/minikit-js';
-import { FACTORY_ADDRESS } from '@/lib/abi/factory';
-import { parseUnits } from 'viem';
-
-const tokenDecimals: Record<SupportedTokenSymbol, number> = {
-  USDC: 6,
-  WLD: 18,
-};
-
-function toBaseUnits(amount: string, decimals: number) {
-  const normalized = amount.trim();
-  if (normalized.length === 0) return '0';
-  try {
-    return parseUnits(normalized.replace(/,/g, '.') as `${number}`, decimals).toString();
-  } catch (err) {
-    console.error('Failed to parse amount to base units', { amount, decimals, err });
-    return '0';
-  }
-}
 
 export const CreateRequestForm = () => {
   const router = useRouter();
@@ -56,7 +38,7 @@ export const CreateRequestForm = () => {
             ],
             description: 'Flywheel: request creation processing',
           } as const;
-          await MiniKit.commandsAsync.pay(payPayload as any);
+          await MiniKit.commandsAsync.pay(payPayload as unknown as Parameters<typeof MiniKit.commandsAsync.pay>[0]);
         } catch (payErr) {
           // Non-fatal for hackathon; proceed to server-side creation
           console.warn('Payment step failed or skipped', payErr);

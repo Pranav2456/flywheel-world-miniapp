@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { AcceptActions } from '@/components/flywheel/AcceptActions';
 import { ExecutePanel } from '@/components/flywheel/ExecutePanel';
 import { SettlePanel } from '@/components/flywheel/SettlePanel';
+import { ClaimPanel } from '@/components/flywheel/ClaimPanel';
 import { notFound } from 'next/navigation';
 
 type RequestDetailPageProps = { params: Promise<{ id: string }> };
@@ -32,7 +33,7 @@ export default async function RequestDetailPage({ params }: RequestDetailPagePro
     const neg = s.startsWith('-');
     const digits = neg ? s.slice(1) : s;
     const pad = d - digits.length;
-    let whole = pad >= 0 ? '0' : digits.slice(0, digits.length - d);
+    const whole = pad >= 0 ? '0' : digits.slice(0, digits.length - d);
     let frac = pad >= 0 ? '0'.repeat(pad) + digits : digits.slice(digits.length - d);
     // trim
     frac = frac.replace(/0+$/, '');
@@ -115,7 +116,8 @@ export default async function RequestDetailPage({ params }: RequestDetailPagePro
           <div className="grid gap-4">
             <AcceptActions requestId={id} />
             <ExecutePanel requestId={id} />
-            <SettlePanel requestId={id} manager={json?.request?.manager as `0x${string}` | undefined} delegationToken={json?.onchain?.delegationToken as `0x${string}` | undefined} />
+            <SettlePanel requestId={id} manager={json?.request?.manager as `0x${string}` | undefined} />
+            <ClaimPanel manager={json?.request?.manager as `0x${string}` | undefined} />
           </div>
         </section>
       </Page.Main>

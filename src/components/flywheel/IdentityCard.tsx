@@ -31,7 +31,7 @@ export const IdentityCard = ({
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(profilePictureUrl ?? undefined);
   const title = username ? `Welcome, ${username}` : 'Welcome to Flywheel';
   const shortWallet = useMemo(() => {
-    const w = walletAddress ?? (typeof window !== 'undefined' ? (MiniKit as any)?.walletAddress : undefined);
+    const w = walletAddress ?? (typeof window !== 'undefined' ? (MiniKit as unknown as { walletAddress?: string })?.walletAddress : undefined);
     if (!w) return undefined;
     return `${w.slice(0, 6)}…${w.slice(-4)}`;
   }, [walletAddress]);
@@ -40,10 +40,10 @@ export const IdentityCard = ({
     if (avatarUrl) return;
     const load = async () => {
       try {
-        const addr = (walletAddress ?? (MiniKit as any)?.walletAddress) as string | undefined;
+        const addr = (walletAddress ?? (MiniKit as unknown as { walletAddress?: string })?.walletAddress) as string | undefined;
         if (!addr) return;
         const u = await MiniKit.getUserInfo(addr as `0x${string}`);
-        if (u?.profilePictureUrl) setAvatarUrl(u.profilePictureUrl);
+        if ((u as unknown as { profilePictureUrl?: string })?.profilePictureUrl) setAvatarUrl((u as unknown as { profilePictureUrl?: string }).profilePictureUrl);
       } catch {
         // ignore
       }

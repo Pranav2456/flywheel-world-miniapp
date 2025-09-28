@@ -2,12 +2,6 @@ import { Page } from '@/components/PageLayout';
 import { TopBar } from '@worldcoin/mini-apps-ui-kit-react';
 import Link from 'next/link';
 
-const riskStyle = {
-  low: 'text-emerald-600 bg-emerald-50',
-  medium: 'text-amber-600 bg-amber-50',
-  high: 'text-rose-600 bg-rose-50',
-};
-
 export default async function RequestsPage() {
   const base = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
   const res = await fetch(`${base}/api/contracts/requests`, { cache: 'no-store' });

@@ -12,8 +12,8 @@ export async function GET() {
     const docs = (await db
       .collection('requests')
       .find({}, { limit: 200, sort: { createdAt: -1 } })
-      .toArray()) as any[];
-    if (docs?.length) items = docs as any;
+      .toArray()) as unknown[];
+    if (docs?.length) items = docs as typeof items;
   } catch {
     // non-fatal
   }
@@ -39,7 +39,7 @@ export async function GET() {
           title: r.title,
           description: r.description,
           manager: r.manager,
-          ownerWalletAddress: (r as any).ownerWalletAddress,
+          ownerWalletAddress: (r as unknown as { ownerWalletAddress?: string }).ownerWalletAddress,
           status: null,
           requester: null,
           resolver: null,
@@ -48,17 +48,18 @@ export async function GET() {
       }
       try {
         const [status, details, endingTs] = await Promise.all([
-          client.readContract({ address: manager, abi: ActionManagerAbi as any, functionName: 'getStatus', args: [] }) as Promise<number>,
-          client.readContract({ address: manager, abi: ActionManagerAbi as any, functionName: 'getActionDetails', args: [] }) as Promise<any>,
-          client.readContract({ address: manager, abi: ActionManagerAbi as any, functionName: 'getEndingTimestamp', args: [] }) as Promise<bigint>,
+          client.readContract({ address: manager, abi: ActionManagerAbi as unknown as readonly [{ type: string }], functionName: 'getStatus', args: [] }) as Promise<number>,
+          client.readContract({ address: manager, abi: ActionManagerAbi as unknown as readonly [{ type: string }], functionName: 'getActionDetails', args: [] }) as Promise<unknown>,
+          client.readContract({ address: manager, abi: ActionManagerAbi as unknown as readonly [{ type: string }], functionName: 'getEndingTimestamp', args: [] }) as Promise<bigint>,
         ]);
-        const [requester, resolver] = [details[0] as string, details[1] as string];
+        const tuple = details as unknown as [string, string];
+        const [requester, resolver] = [tuple?.[0] as string, tuple?.[1] as string];
         return {
           id: r.id,
           title: r.title,
           description: r.description,
           manager: r.manager,
-          ownerWalletAddress: (r as any).ownerWalletAddress,
+          ownerWalletAddress: (r as unknown as { ownerWalletAddress?: string }).ownerWalletAddress,
           status,
           requester,
           resolver,
@@ -70,7 +71,7 @@ export async function GET() {
           title: r.title,
           description: r.description,
           manager: r.manager,
-          ownerWalletAddress: (r as any).ownerWalletAddress,
+          ownerWalletAddress: (r as unknown as { ownerWalletAddress?: string }).ownerWalletAddress,
           status: null,
           requester: null,
           resolver: null,

@@ -1,4 +1,4 @@
-let cached: { client: any; db: any } | null = null;
+let cached: { client: import('mongodb').MongoClient; db: import('mongodb').Db } | null = null;
 
 export async function getDb() {
   const uri = process.env.MONGODB_URI;
@@ -6,7 +6,7 @@ export async function getDb() {
     throw new Error('MONGODB_URI is not set');
   }
   if (cached) return cached.db;
-  const mod = (await import('mongodb').catch(() => null)) as any;
+  const mod = (await import('mongodb').catch(() => null)) as typeof import('mongodb') | null;
   if (!mod) throw new Error('mongodb driver not installed');
   const client = new mod.MongoClient(uri);
   await client.connect();

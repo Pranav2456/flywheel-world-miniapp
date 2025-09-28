@@ -42,7 +42,7 @@ export async function POST(req: Request) {
       { $set: item },
       { upsert: true },
     );
-  } catch (e) {
+  } catch {
     // non-fatal
   }
 
@@ -54,9 +54,9 @@ export async function GET() {
   // Try to hydrate from Mongo
   try {
     const db = await getDb();
-    const docs = (await db.collection('requests').find({}, { limit: 50, sort: { createdAt: -1 } }).toArray()) as any[];
-    if (docs?.length) items = docs as any;
-  } catch (e) {
+    const docs = (await db.collection('requests').find({}, { limit: 50, sort: { createdAt: -1 } }).toArray()) as unknown[];
+    if (docs?.length) items = docs as typeof items;
+  } catch {
     // non-fatal
   }
   return NextResponse.json({ ok: true, items });

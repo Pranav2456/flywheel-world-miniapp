@@ -15,7 +15,9 @@ export const AcceptActions = ({ requestId }: { requestId: string }) => {
     if (state === 'pending') return;
     setState('pending');
     try {
+      console.log('[AcceptActions] requesting accept params', { requestId });
       const { priceUpdateData: updates, manager, stakeToken, stakeAmount, updateFeeWei } = await acceptRequest(requestId);
+      console.log('[AcceptActions] accept params', { updates: updates.length, manager, stakeToken, stakeAmount, updateFeeWei });
       setLen(updates.length);
 
       if (!MiniKit.isInstalled()) throw new Error('MiniKit not installed');
@@ -36,15 +38,16 @@ export const AcceptActions = ({ requestId }: { requestId: string }) => {
             address: manager as `0x${string}`,
             abi: AcceptAbi,
             functionName: 'acceptActionRequest',
-            args: [updates as any],
+            args: [updates as unknown as `0x${string}`[]],
             value: `0x${BigInt(updateFeeWei).toString(16)}`,
           },
         ],
-      } as unknown as Parameters<typeof MiniKit.commandsAsync.sendTransaction>[0];
+      } as Parameters<typeof MiniKit.commandsAsync.sendTransaction>[0];
 
       const res = await MiniKit.commandsAsync.sendTransaction(payload);
       const finalPayload: { transaction_hash?: string } | undefined = (res as unknown as { finalPayload?: { transaction_hash?: string } }).finalPayload;
       const hash = finalPayload?.transaction_hash ?? null;
+      console.log('[AcceptActions] tx sent', { hash });
       setTxHash(hash);
       setState('success');
     } catch (err) {
