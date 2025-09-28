@@ -1,4 +1,4 @@
-import { Page } from '@/components/PageLayout';
+import { PageHeader, PageMain } from '@/components/PageLayout';
 import { RequesterMissions } from '@/components/flywheel/RequesterMissions';
 import { TopBar } from '@worldcoin/mini-apps-ui-kit-react';
 import { CreateRequestForm } from '@/components/flywheel/CreateRequestForm';
@@ -29,7 +29,7 @@ export default async function RequesterDashboardPage() {
   }));
   return (
     <>
-      <Page.Header className="p-0">
+      <PageHeader className="p-0">
         <TopBar
           title="Requester"
           endAdornment={
@@ -43,8 +43,8 @@ export default async function RequesterDashboardPage() {
             ) : undefined
           }
         />
-      </Page.Header>
-      <Page.Main className="flex flex-col items-center justify-start gap-4 mb-16">
+      </PageHeader>
+      <PageMain className="flex flex-col items-center justify-start gap-4 mb-16">
         <CreateRequestForm />
         <RequesterMissions missions={missions} />
         <section className="grid w-full gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -61,7 +61,7 @@ export default async function RequesterDashboardPage() {
             Complete Flywheel verification
           </a>
         </section>
-      </Page.Main>
+      </PageMain>
     </>
   );
 }
