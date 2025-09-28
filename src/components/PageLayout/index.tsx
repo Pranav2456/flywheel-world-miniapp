@@ -31,4 +31,8 @@ const Main = ({ className, children }: PropsWithChildren<{ className?: string }>
   <main className={clsx('w-full max-w-md px-4', className)}>{children}</main>
 );
 
+export const PageHeader = Header;
+export const PageMain = Main;
+export const PageSection = Section;
+
 export const Page = { Header, Main, Section };

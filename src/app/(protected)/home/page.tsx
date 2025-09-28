@@ -1,5 +1,5 @@
 import { auth } from '@/auth';
-import { Page } from '@/components/PageLayout';
+import { PageHeader, PageMain } from '@/components/PageLayout';
 import { IdentityCard } from '@/components/flywheel/IdentityCard';
 import { RoleSnapshot } from '@/components/flywheel/RoleSnapshot';
 import { ActionTiles } from '@/components/flywheel/ActionTiles';
@@ -33,12 +33,12 @@ export default async function Home() {
 
   return (
     <>
-      <Page.Header className="p-0">
+      <PageHeader className="p-0">
         <TopBar
           title="Flywheel"
         />
-      </Page.Header>
-      <Page.Main className="flex flex-col items-center justify-start gap-4 mb-16">
+      </PageHeader>
+      <PageMain className="flex flex-col items-center justify-start gap-4 mb-16">
         <MiniAppPicker />
         <IdentityCard
           username={username}
@@ -102,7 +102,7 @@ export default async function Home() {
 
         {/* Suggestions */}
         <ActionTiles />
-      </Page.Main>
+      </PageMain>
     </>
   );
 }

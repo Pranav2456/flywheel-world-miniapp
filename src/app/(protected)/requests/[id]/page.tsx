@@ -88,7 +88,21 @@ export default async function RequestDetailPage({ params }: RequestDetailPagePro
           <div className="grid gap-2 text-xs text-gray-600">
             <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
               <span className="font-medium text-gray-700">Budget</span>
-              <span>{formatTokenAmount(json.request?.budgetAmount ?? null, json.request?.budgetToken)}</span>
+              <span>
+                {(() => {
+                  const onchainToken = (json.onchain?.delegationToken ?? '').toLowerCase();
+                  const usdc = (process.env.NEXT_PUBLIC_USDC_ADDRESS ?? '').toLowerCase();
+                  const wld = (process.env.NEXT_PUBLIC_WLD_ADDRESS ?? '').toLowerCase();
+                  const symbol = onchainToken
+                    ? onchainToken === usdc
+                      ? 'USDC'
+                      : onchainToken === wld
+                        ? 'WLD'
+                        : json.request?.budgetToken
+                    : json.request?.budgetToken;
+                  return formatTokenAmount(json.request?.budgetAmount ?? null, symbol);
+                })()}
+              </span>
             </div>
             <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
               <span className="font-medium text-gray-700">Status</span>

@@ -1,13 +1,13 @@
 import { ReactNode } from 'react';
-import { Page } from '@/components/PageLayout';
+import { PageHeader, PageMain } from '@/components/PageLayout';
 
 export default function HomeLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <Page.Header />
-      <Page.Main>
+      <PageHeader />
+      <PageMain>
         {children}
-      </Page.Main>
+      </PageMain>
     </>
   );
 }

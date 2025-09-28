@@ -50,7 +50,10 @@ export const CreateRequestForm = () => {
         .catch(() => ({ ok: false })) as { ok?: boolean; txHash?: `0x${string}`; manager?: `0x${string}`; token?: string; delegatedTokenAmount?: string };
       if (!server?.ok) throw new Error('Server create failed');
 
-      const req = await createRequest({ title, description, budgetToken: token, budgetAmount: server.delegatedTokenAmount ?? '0', manager: server.manager });
+      // Use the actual token chosen by the server for correct formatting/decimals
+      const usdc = (process.env.NEXT_PUBLIC_USDC_ADDRESS ?? '').toLowerCase();
+      const symbol: SupportedTokenSymbol = (server.token ?? '').toLowerCase() === usdc ? 'USDC' : 'WLD';
+      const req = await createRequest({ title, description, budgetToken: symbol, budgetAmount: server.delegatedTokenAmount ?? '0', manager: server.manager });
       router.push(`/requests/${req.id}`);
     } catch (err) {
       console.error('Create request failed', err);
