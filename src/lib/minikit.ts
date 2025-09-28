@@ -22,3 +22,5 @@ export const isWorldApp = () => {
   const globalMiniKit = (window as typeof window & { __MINIKIT__?: { isInstalled?: boolean } }).__MINIKIT__;
   return !!globalMiniKit?.isInstalled;
 };
+
+// Permit2 helpers removed in simplified v2. Transactions are sent directly without token permits.
