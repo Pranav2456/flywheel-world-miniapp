@@ -6,10 +6,9 @@ import { twMerge } from 'tailwind-merge';
 export const Page = (props: { children: ReactNode; className?: string }) => {
   return (
     <SafeAreaView
-      asChild
       className={twMerge(clsx('flex h-dvh flex-col bg-white', props.className))}
     >
-      <div>{props.children}</div>
+      {props.children}
     </SafeAreaView>
   );
 };

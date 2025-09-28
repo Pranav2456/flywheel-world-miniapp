@@ -18,6 +18,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Flywheel Mini App',
   description: 'Coordinate leverage missions between requesters and resolvers',
+  icons: {
+    icon: '/flywheel-logo.png',
+    shortcut: '/flywheel-logo.png',
+    apple: '/flywheel-logo.png',
+  },
 };
 
 export default async function RootLayout({

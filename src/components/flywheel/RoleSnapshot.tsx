@@ -4,6 +4,9 @@ interface RoleSnapshotProps {
   role: 'requester' | 'resolver' | 'both';
   activeAssignments: number;
   pendingRequests: number;
+  title?: string;
+  hint?: string;
+  hideSwitch?: boolean;
 }
 
 const roleCopy: Record<RoleSnapshotProps['role'], string> = {
@@ -22,22 +25,27 @@ export const RoleSnapshot = ({
   role,
   activeAssignments,
   pendingRequests,
+  title,
+  hint,
+  hideSwitch,
 }: RoleSnapshotProps) => {
   return (
     <section className="grid gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <header className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
           <p className="text-base font-semibold leading-none">
-            {roleCopy[role]}
+            {title ?? roleCopy[role]}
           </p>
-          <p className="text-sm text-gray-500">{roleHint[role]}</p>
+          <p className="text-sm text-gray-500">{hint ?? roleHint[role]}</p>
         </div>
-        <button
-          type="button"
-          className="rounded-full border border-primary-200 px-3 py-1 text-sm font-semibold text-primary-600"
-        >
-          Switch role
-        </button>
+        {hideSwitch ? null : (
+          <button
+            type="button"
+            className="rounded-full border border-primary-200 px-3 py-1 text-sm font-semibold text-primary-600"
+          >
+            Switch role
+          </button>
+        )}
       </header>
       <div className="grid grid-cols-2 gap-3 text-sm font-semibold">
         <div className="rounded-xl bg-primary-50 p-3">

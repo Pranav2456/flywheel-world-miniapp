@@ -1,52 +1,53 @@
 import { Page } from '@/components/PageLayout';
 import { RequesterMissions } from '@/components/flywheel/RequesterMissions';
 import { TopBar } from '@worldcoin/mini-apps-ui-kit-react';
-
-const mockRequests = [
-  {
-    id: 'req-1',
-    title: 'Morpho WBTC 3x leverage',
-    status: 'active' as const,
-    collateral: 'WBTC',
-    leverage: '3x',
-    pnl: '+3.4% (simulated)',
-  },
-  {
-    id: 'req-2',
-    title: 'ETH delta-neutral loop',
-    status: 'settlement' as const,
-    collateral: 'ETH',
-    leverage: '2.2x',
-    pnl: '+1.2% (simulated)',
-  },
-  {
-    id: 'req-3',
-    title: 'WBTC hedged 2.5x strategy',
-    status: 'history' as const,
-    collateral: 'WBTC',
-    leverage: '2.5x',
-    pnl: '+4.1% (simulated)',
-  },
-];
+import { CreateRequestForm } from '@/components/flywheel/CreateRequestForm';
+import { cookies } from 'next/headers';
 
 export default async function RequesterDashboardPage() {
+  const cookieStore = await cookies();
+  const isVerified = cookieStore.get('fw_verified')?.value === 'true';
+  const base = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  const res = await fetch(`${base}/api/contracts/requests/summary`, { cache: 'no-store' });
+  const json = (await res.json().catch(() => ({ ok: false, items: [] }))) as {
+    ok: boolean;
+    items: { id: string; title?: string; status: number | null; requester: string | null }[];
+  };
+  const me = cookieStore.get('next-auth.session-token') ? undefined : undefined; // SSR-safe placeholder; filter client-side if needed
+  const mapStatus = (s: number | null): 'active' | 'settlement' | 'history' => {
+    if (s === 0) return 'active';
+    if (s === 1) return 'active';
+    if (s === 2 || s === 3 || s === 4) return 'history';
+    return 'history';
+  };
+  const missions = (json.items || []).map((i) => ({
+    id: i.id,
+    title: i.title ?? `Request ${i.id}`,
+    status: mapStatus(i.status),
+    collateral: '-',
+    leverage: '-',
+    pnl: '-',
+  }));
   return (
     <>
       <Page.Header className="p-0">
         <TopBar
           title="Requester"
           endAdornment={
-            <a
-              href="#verify"
-              className="text-xs font-semibold text-primary-600"
-            >
-              Verify now
-            </a>
+            !isVerified ? (
+              <a
+                href="#verify"
+                className="text-xs font-semibold text-primary-600"
+              >
+                Verify now
+              </a>
+            ) : undefined
           }
         />
       </Page.Header>
       <Page.Main className="flex flex-col items-center justify-start gap-4 mb-16">
-        <RequesterMissions missions={mockRequests} />
+        <CreateRequestForm />
+        <RequesterMissions missions={missions} />
         <section className="grid w-full gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <p className="text-sm font-semibold">Why verification matters</p>
           <p className="text-xs text-gray-600">

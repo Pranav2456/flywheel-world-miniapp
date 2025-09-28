@@ -13,10 +13,10 @@ Delegate on‑chain actions to skilled resolvers to earn automated rewards from 
 - Resolvers accept requests, execute through relevant mini apps, and claim commission on realized profit.
 - Payment and proof flows use MiniKit (pay, verify) and reference IDs for auditability.
 
-### 4) Initial Scope (Hackathon Demo: Morpho Flow)
+### 4) Scope (Hackathon Demo: Morpho Flow — Simplified v2)
 - Focus: Leveraged position management via Morpho World Mini App.
-- We simulate escrow and position tracking off‑chain first; contracts to come later.
-- Show end‑to‑end UX: create request → accept → verify identity → simulate/execute → settle with commission.
+- Contracts-backed: ActionManagerFactory/ActionManager drive lifecycle; backend signature removed.
+- End‑to‑end UX: create request → accept → verify identity → execute → settle(returnAmount).
 
 ### 5) Primary Personas
 - Requester: supplies capital or sets a bounty to obtain outcomes.
@@ -73,20 +73,21 @@ Empty/edge states:
   - returns: { id: reference }
 - POST /api/requests/:id/settle: compute PnL, produce payouts
   - returns: { settlement }
-- POST /api/verify-proof: already present (server‑side verification)
-- POST /api/initiate-payment: already present (returns UUID reference)
+- POST /api/verify-proof: server‑side verification
+- POST /api/initiate-payment: returns UUID reference
+- Contracts routes: see `docs/backend-api-spec.md`
 
 Note: For hackathon, persist in memory or a lightweight KV; production → DB.
 
-### 10) MiniKit Integrations
+### 10) MiniKit Integrations (Simplified)
 - Verify: require `VerificationLevel.Device` at minimum before create/accept.
-- Pay: invoke pay to move funds between requester/resolver with `reference` from server; reconcile on server by matching on‑chain tx → `reference`.
+- Send Transaction: use `commandsAsync.sendTransaction` to call factory/manager directly.
 
-### 11) Morpho Demo Flow (Happy Path)
+### 11) Morpho Demo Flow (Happy Path, v2)
 1) Requester verifies → creates Morpho request (budget 100 USDCe, 10% commission).
-2) Resolver verifies → accepts request.
-3) Resolver executes: opens/adjusts leveraged Morpho position. Logs `execute` step; gets `reference` from server; optionally triggers `pay` for gas/reward.
-4) Settlement: server computes profit (simulated), generates payouts via `pay` with `reference`: resolver receives commission, requester receives remainder.
+2) Resolver verifies → accepts request with Pyth update bytes; pays oracle fee.
+3) Resolver executes: opens/adjusts leveraged Morpho position; logs `execute` step reference.
+4) Settlement: resolver computes `returnAmount` and calls `ActionManager.settle(returnAmount)` directly.
 
 ### 12) Security & Trust Model
 - World ID proof checked server‑side (`/api/verify-proof`).
