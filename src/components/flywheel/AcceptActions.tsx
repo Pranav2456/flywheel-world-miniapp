@@ -45,10 +45,26 @@ export const AcceptActions = ({ requestId }: { requestId: string }) => {
       } as Parameters<typeof MiniKit.commandsAsync.sendTransaction>[0];
 
       const res = await MiniKit.commandsAsync.sendTransaction(payload);
-      const finalPayload: { transaction_hash?: string } | undefined = (res as unknown as { finalPayload?: { transaction_hash?: string } }).finalPayload;
-      const hash = finalPayload?.transaction_hash ?? null;
+      console.log('[AcceptActions] raw result', res);
+      const finalPayload: { transaction_hash?: string; tx_hash?: string } | undefined = (res as unknown as { finalPayload?: { transaction_hash?: string; tx_hash?: string } }).finalPayload;
+      const hash = finalPayload?.transaction_hash ?? finalPayload?.tx_hash ?? null;
       console.log('[AcceptActions] tx sent', { hash });
       setTxHash(hash);
+      if (!hash) {
+        // Fallback: poll on-chain status to confirm acceptance
+        let attempts = 0;
+        const maxAttempts = 10;
+        const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        while (attempts < maxAttempts) {
+          try {
+            const detail = await fetch(`/api/contracts/requests/${requestId}`, { cache: 'no-store' }).then((r) => r.json()).catch(() => ({ ok: false }));
+            const status = (detail?.onchain?.status ?? null) as number | null;
+            if (status === 1) break;
+          } catch {}
+          attempts += 1;
+          await delay(1500);
+        }
+      }
       setState('success');
     } catch (err) {
       console.error('Accept failed', err);
