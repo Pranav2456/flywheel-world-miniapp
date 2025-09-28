@@ -1,4 +1,4 @@
-import { Page } from '@/components/PageLayout';
+import { PageHeader, PageMain } from '@/components/PageLayout';
 import { Button, TopBar } from '@worldcoin/mini-apps-ui-kit-react';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
@@ -37,8 +37,7 @@ export default async function ResolverDashboardPage() {
 
   return (
     <>
-      <Page.Header className="p-0">
-
+      <PageHeader className="p-0">
         <TopBar
           title="Resolver"
           endAdornment={
@@ -52,8 +51,8 @@ export default async function ResolverDashboardPage() {
             ) : undefined
           }
         />
-      </Page.Header>
-      <Page.Main className="flex flex-col items-center justify-start gap-5 mb-16">
+      </PageHeader>
+      <PageMain className="flex flex-col items-center justify-start gap-5 mb-16">
         <section className="grid w-full gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <header className="flex items-center justify-between">
             <div>
@@ -139,7 +138,7 @@ export default async function ResolverDashboardPage() {
             View payout references
           </Button>
         </section>
-      </Page.Main>
+      </PageMain>
     </>
   );
 }

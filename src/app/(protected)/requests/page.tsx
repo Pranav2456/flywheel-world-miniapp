@@ -1,4 +1,4 @@
-import { Page } from '@/components/PageLayout';
+import { PageHeader, PageMain } from '@/components/PageLayout';
 import { TopBar } from '@worldcoin/mini-apps-ui-kit-react';
 import Link from 'next/link';
 
@@ -9,10 +9,10 @@ export default async function RequestsPage() {
   const items = Array.isArray(json.items) ? json.items : [];
   return (
     <>
-      <Page.Header className="p-0">
+      <PageHeader className="p-0">
         <TopBar title="Requests" />
-      </Page.Header>
-      <Page.Main className="flex flex-col items-center justify-start gap-4 mb-16">
+      </PageHeader>
+      <PageMain className="flex flex-col items-center justify-start gap-4 mb-16">
         <section className="grid w-full gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <header className="flex items-center justify-between">
             <p className="text-base font-semibold">Open leverage missions</p>
@@ -55,7 +55,7 @@ export default async function RequestsPage() {
             ) : null}
           </div>
         </section>
-      </Page.Main>
+      </PageMain>
     </>
   );
 }

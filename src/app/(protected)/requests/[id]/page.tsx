@@ -1,4 +1,4 @@
-import { Page } from '@/components/PageLayout';
+import { PageHeader, PageMain } from '@/components/PageLayout';
 import { TopBar } from '@worldcoin/mini-apps-ui-kit-react';
 import Link from 'next/link';
 import { AcceptActions } from '@/components/flywheel/AcceptActions';
@@ -59,10 +59,10 @@ export default async function RequestDetailPage({ params }: RequestDetailPagePro
 
   return (
     <>
-      <Page.Header className="p-0">
+      <PageHeader className="p-0">
         <TopBar title="Request Details" />
-      </Page.Header>
-      <Page.Main className="flex flex-col items-center justify-start gap-5 mb-16">
+      </PageHeader>
+      <PageMain className="flex flex-col items-center justify-start gap-5 mb-16">
         <section className="grid w-full gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="flex items-start justify-between gap-4">
             <div className="grid gap-1">
@@ -134,7 +134,7 @@ export default async function RequestDetailPage({ params }: RequestDetailPagePro
             <ClaimPanel manager={json?.request?.manager as `0x${string}` | undefined} />
           </div>
         </section>
-      </Page.Main>
+      </PageMain>
     </>
   );
 }
