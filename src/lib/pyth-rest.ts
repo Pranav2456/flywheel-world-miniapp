@@ -16,6 +16,7 @@ export async function fetchPythUpdateDataREST(priceIds: string[]) {
       priceUpdateData?: unknown;
       updateData?: unknown;
       updates?: unknown[];
+      binary?: { encoding?: string; data?: unknown };
       [k: string]: unknown;
     };
     // Common shapes observed across Hermes variants
@@ -31,6 +32,11 @@ export async function fetchPythUpdateDataREST(priceIds: string[]) {
         .filter(Boolean) as string[];
       if (nested.length) return nested;
     }
+
+    // Newer Hermes shape: top-level binary payload
+    const bin = json?.binary as { encoding?: string; data?: unknown } | undefined;
+    const binaryData = Array.isArray(bin?.data) ? (bin?.data as string[]) : undefined;
+    if (binaryData && binaryData.length) return binaryData;
     // Nothing matched
     console.warn('[pyth-rest] empty updates payload shape', { keys: Object.keys(json || {}) });
     return [] as string[];

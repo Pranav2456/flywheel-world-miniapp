@@ -105,9 +105,16 @@ export async function POST(_req: Request, context: { params: Promise<{ id: strin
       }
     }
     if (updatesHex.length === 0) {
-      console.warn('[accept] NO_PYTH_UPDATES after candidates', { candidatesCount: candidates.length });
-      return NextResponse.json({ ok: false, code: 'NO_PYTH_UPDATES', onchainIds, envIds }, { status: 502 });
+      console.warn('[accept] NO_PYTH_UPDATES after candidates - trying raw binary fallback');
+      // final fallback: request both ids in one call and accept binary.data directly
+      const allIds = [...new Set([...(onchainIds as string[]), ...(envIds as string[])])] as `0x${string}`[];
+      const raw = await fetchPythUpdateDataREST(allIds).catch(() => undefined);
+      if (Array.isArray(raw) && raw.length) {
+        updatesHex = raw.map((x) => (x.startsWith('0x') ? (x as `0x${string}`) : (`0x${x}` as `0x${string}`)));
+      }
+      console.log('[accept] binary fallback result', { count: updatesHex.length });
     }
+    if (updatesHex.length === 0) return NextResponse.json({ ok: false, code: 'NO_PYTH_UPDATES', onchainIds, envIds }, { status: 502 });
 
     // Compute precise stake using the same logic as the contract via oracle simulation
     const pythCoreAddr = (await client.readContract({ address: oracleAddr, abi: PythOracleAbi as unknown as readonly [{ type: string }], functionName: 'getPyth', args: [] })) as `0x${string}`;

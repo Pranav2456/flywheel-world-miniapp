@@ -1,51 +1,34 @@
+'use client';
+
 import clsx from 'clsx';
-import { ReactNode } from 'react';
-import { SafeAreaView } from '@worldcoin/mini-apps-ui-kit-react';
-import { twMerge } from 'tailwind-merge';
+import { PropsWithChildren } from 'react';
+import { useRouter } from 'next/navigation';
 
-export const Page = (props: { children: ReactNode; className?: string }) => {
-  return (
-    <SafeAreaView
-      className={twMerge(clsx('flex h-dvh flex-col bg-white', props.className))}
-    >
-      {props.children}
-    </SafeAreaView>
-  );
-};
+const Section = ({ className, children }: PropsWithChildren<{ className?: string }>) => (
+  <section className={clsx('w-full max-w-md px-4', className)}>{children}</section>
+);
 
-const Header = (props: { children: ReactNode; className?: string }) => {
+const Header = ({ className, children }: PropsWithChildren<{ className?: string }>) => {
+  const router = useRouter();
   return (
-    <header
-      className={twMerge(
-        'bg-white flex flex-col justify-center px-6 pt-6 pb-3 z-10',
-        clsx(props.className),
-      )}
-    >
-      {props.children}
+    <header className={clsx('w-full max-w-md px-4', className)}>
+      <div className="flex items-center gap-3 py-2">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600"
+        >
+          Back
+        </button>
+        <div className="flex-1" />
+      </div>
+      {children}
     </header>
   );
 };
 
-const Main = (props: { children: ReactNode; className?: string }) => {
-  return (
-    <main
-      className={twMerge(
-        clsx('grow overflow-y-auto px-6 pt-3 pb-12', props.className),
-      )}
-    >
-      {props.children}
-    </main>
-  );
-};
+const Main = ({ className, children }: PropsWithChildren<{ className?: string }>) => (
+  <main className={clsx('w-full max-w-md px-4', className)}>{children}</main>
+);
 
-const Footer = (props: { children: ReactNode; className?: string }) => {
-  return (
-    <footer className={twMerge('px-6 pb-[35px]', clsx(props.className))}>
-      {props.children}
-    </footer>
-  );
-};
-
-Page.Header = Header;
-Page.Main = Main;
-Page.Footer = Footer;
+export const Page = { Header, Main, Section };

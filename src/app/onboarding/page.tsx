@@ -85,8 +85,9 @@ export default function OnboardingPage() {
   }, [currentSlide, isEntering, router, waitForVerification]);
 
   return (
-    <Page className="bg-white">
-      <Page.Main className="flex flex-col justify-between gap-8">
+    <>
+      <Page.Header />
+      <Page.Main className="bg-white flex flex-col justify-between gap-8">
         <div className="flex justify-center pt-8">
           <Marble className="h-16 w-16" />
         </div>
@@ -149,7 +150,7 @@ export default function OnboardingPage() {
           ) : null}
         </div>
       </Page.Main>
-    </Page>
+    </>
   );
 }
 
