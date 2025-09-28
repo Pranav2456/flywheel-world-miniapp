@@ -15,8 +15,10 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  // For protected routes, require verification
-  if (!isVerified) {
+  // Gate protected routes behind verification
+  const protectedRoots = ['/home', '/requests', '/requester', '/resolver'];
+  const isProtectedPath = protectedRoots.some((root) => pathname === root || pathname.startsWith(`${root}/`));
+  if (isProtectedPath && !isVerified) {
     return NextResponse.redirect(new URL('/onboarding', nextUrl));
   }
 

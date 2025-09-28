@@ -1,6 +1,6 @@
 'use client';
 import { Button, LiveFeedback } from '@worldcoin/mini-apps-ui-kit-react';
-import { MiniKit, VerificationLevel, ResponseEvent } from '@worldcoin/minikit-js';
+import { MiniKit, VerificationLevel, ResponseEvent, type MiniAppVerifyActionPayload } from '@worldcoin/minikit-js';
 import { useMiniKit } from '@worldcoin/minikit-js/minikit-provider';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -29,7 +29,7 @@ export const Verify = () => {
     if (!isInstalled) return;
 
     // Install a handler to silence SDK's "No handler for event miniapp-verify-action" console error
-    const handler = (response: any) => {
+    const handler = (response: MiniAppVerifyActionPayload) => {
       if (response?.status === 'error') {
         setButtonState('failed');
         console.warn('Verify event error', response);
@@ -58,7 +58,7 @@ export const Verify = () => {
     });
 
     if (result.finalPayload.status === 'error') {
-      const err: any = result.finalPayload;
+      const err = result.finalPayload as { error_code?: string };
       const code = err?.error_code ?? 'unknown';
       if (code === 'user_rejected') {
         console.warn('MiniKit verify cancelled by user');
@@ -83,7 +83,10 @@ export const Verify = () => {
     });
 
     const data = await response.json();
-    if (response.ok && data?.verifyRes?.success) {
+    if (
+      response.ok &&
+      (data?.verifyRes?.success || data?.alreadyVerified === true)
+    ) {
       setButtonState('success');
       // Normally you'd do something here since the user is verified
       // Here we'll just do nothing

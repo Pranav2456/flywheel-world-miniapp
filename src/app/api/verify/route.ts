@@ -66,9 +66,22 @@ export async function POST(req: NextRequest) {
       return res;
     }
 
-    // Treat duplicate/nullifier-already-used as "already verified" and persist session cookies
+    // Treat duplicate/limit/previous verification as "already verified" and persist session cookies
     const code = (verifyRes as unknown as { code?: string })?.code?.toLowerCase?.();
-    const isAlreadyVerified = !!code && (code.includes('already') || code.includes('duplicate'));
+    const detail = (verifyRes as unknown as { detail?: string })?.detail?.toLowerCase?.();
+    const alreadyCodes = new Set([
+      'already_signed',
+      'duplicate_nullifier',
+      'already_verified',
+      'user_already_verified',
+      'person_already_verified',
+      'action_already_completed',
+      'max_verifications_reached',
+      'max_verifications_exceeded',
+    ]);
+    const isAlreadyVerified =
+      (!!code && (alreadyCodes.has(code) || code.includes('already') || code.includes('duplicate') || code.includes('max_verifications')))
+      || (!!detail && (detail.includes('already verified') || detail.includes('previously') || detail.includes('already signed')));
 
     if (isAlreadyVerified) {
       const res = NextResponse.json({ verifyRes, status: 200, alreadyVerified: true }, { status: 200 });

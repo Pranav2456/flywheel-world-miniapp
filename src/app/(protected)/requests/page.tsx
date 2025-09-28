@@ -2,33 +2,6 @@ import { Page } from '@/components/PageLayout';
 import { TopBar } from '@worldcoin/mini-apps-ui-kit-react';
 import Link from 'next/link';
 
-const mockRequests = [
-  {
-    id: 'req-1',
-    title: 'Morpho WBTC 3x with 55% max LTV',
-    collateral: 'WBTC',
-    leverage: '3x',
-    commissionBps: 150,
-    riskRating: 'medium' as const,
-  },
-  {
-    id: 'req-2',
-    title: 'ETH delta-neutral loop (2.2x)',
-    collateral: 'ETH',
-    leverage: '2.2x',
-    commissionBps: 120,
-    riskRating: 'low' as const,
-  },
-  {
-    id: 'req-3',
-    title: 'USDC Morpho PP 4x (70% ceiling)',
-    collateral: 'USDC',
-    leverage: '4x',
-    commissionBps: 200,
-    riskRating: 'high' as const,
-  },
-];
-
 const riskStyle = {
   low: 'text-emerald-600 bg-emerald-50',
   medium: 'text-amber-600 bg-amber-50',
@@ -36,6 +9,10 @@ const riskStyle = {
 };
 
 export default async function RequestsPage() {
+  const base = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  const res = await fetch(`${base}/api/contracts/requests`, { cache: 'no-store' });
+  const json = (await res.json().catch(() => ({ ok: false, items: [] }))) as { ok: boolean; items: { id: string; title?: string; description?: string }[] };
+  const items = Array.isArray(json.items) ? json.items : [];
   return (
     <>
       <Page.Header className="p-0">
@@ -64,7 +41,7 @@ export default async function RequestsPage() {
             </button>
           </div>
           <div className="grid gap-3">
-            {mockRequests.map((request) => (
+            {items.map((request) => (
               <Link
                 key={request.id}
                 href={`/requests/${request.id}`}
@@ -72,23 +49,16 @@ export default async function RequestsPage() {
               >
                 <div className="flex items-start justify-between">
                   <div className="grid gap-1">
-                    <p className="text-sm font-semibold">{request.title}</p>
-                    <p className="text-xs text-gray-500">
-                      {request.collateral} · {request.leverage} leverage ·
-                      commission {request.commissionBps / 100}%
-                    </p>
+                    <p className="text-sm font-semibold">{request.title ?? `Request ${request.id}`}</p>
+                    <p className="text-xs text-gray-500 line-clamp-2">{request.description ?? '—'}</p>
                   </div>
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs font-semibold ${riskStyle[request.riskRating]}`}
-                  >
-                    {request.riskRating.toUpperCase()} RISK
-                  </span>
+                  <span className="rounded-full px-2 py-1 text-xs font-semibold text-primary-600 bg-primary-50">View</span>
                 </div>
-                <p className="text-xs text-gray-500">
-                  Guardrails: Max LTV 55%, daily rebalance; resolver auto-notified if breach.
-                </p>
               </Link>
             ))}
+            {items.length === 0 ? (
+              <p className="text-xs text-gray-500">No requests yet. Create one from the requester dashboard.</p>
+            ) : null}
           </div>
         </section>
       </Page.Main>
